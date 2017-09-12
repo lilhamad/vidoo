@@ -1,0 +1,85 @@
+{% extends 'videos/base.html' %}
+{% block title %}see your movies here{% endblock %}
+{% block private-js %}
+<script>
+
+        function plause(id) {
+            var audio = document.getElementById("video_"+id);
+            audio.play();
+            setTimeout(function(){audio.pause()},10000)
+            var left = 10
+            var timer = setInterval(function()
+            {
+                left--;
+                if(left>=0){ $('#time').html(left); $("#playfull").hide(); }
+                if(left==0){ $('#play10').hide(); $('#playfull').show(); }
+            }, 1000
+            )
+
+        }
+</script>
+{% endblock %}
+{% block body%}
+<div class="row">
+    <div class="col-sm-8 blog-main">
+        {% for video in videos %}
+        <div class="blog-post" style="font-weight:700">
+            <h4 class="blog-post-title" style="font-size:30px; font-weight:700">{{ video.name }}</h4>
+            <p class="blog-post-meta" style="font-size:15px">{{ video.date_added }}<a href="">{{video.added_by.username}}</a></p>
+            <p style="font-size:18px">{{video.details}}</p>
+            <div class="bs-example" data-example-id="responsive-embed-16by9-iframe-youtube">
+                <div class="embed-responsive embed-responsive-16by9">
+                    <video id="video_{{forloop.counter}}" style="background-color: black">
+                        <source src="{{ video.path.url }}" type="video/mp4">
+                        <source src="{{ video.path.url }}" type="video/ogg">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <button id="play10" onclick="plause({{forloop.counter}})" style="margin-top: -460px; margin-left: 18%;" class="btn btn-default btn-lg" type="button">
+                    <h1 id="iplause" class="glyphicon glyphicon-play"><span id="time">10</span>s Preview<br> </h1>
+                </button>
+                <a id="playfull"  href="{% url 'videos:detail' video.id %}" style="margin-top: -460px; margin-left: 18%; display:none" class="btn btn-success btn-lg">
+                    <h1 style="font-size:90px" class="glyphicon glyphicon-play" >Play full.</h1>
+                </a>
+                <h5 style="margin-top:9px; margin-bottom:0" class="pull-right">{{ video.view_count }} views</h5>
+            </div>
+            <hr>
+        </div>
+        {% endfor %}
+        <nav>
+            <ul class="pager">
+                <li><a href="#">Previous</a></li>
+                <li><a href="#">Next</a></li>
+            </ul>
+        </nav>
+
+    </div>
+    <div class="col-sm-3 col-sm-offset-1 blog-sidebar">
+        <div class="sidebar-module sidebar-module-inset">
+            <h4>About</h4>
+            <p>Vidoo <em>video object oriented </em> mollis euismod. Cras mattis consectetur purus sit amet fermentum. Aenean lacinia bibendum nulla sed consectetur.</p>
+        </div>
+        <div class="sidebar-module">
+            <h4>Latest</h4>
+            <ol class="list-unstyled">
+                {% for latest in latests %}
+                <li><a href="{% url 'videos:detail' latest.id %}">{{ latest.name }}</a></li>
+                {% endfor %}
+                <li><a href="#">June 2013</a></li>
+                <li><a href="#">May 2013</a></li>
+                <li><a href="#">April 2013</a></li>
+            </ol>
+        </div>
+        <div class="sidebar-module">
+            <h4>Categories</h4>
+            <ol class="list-unstyled">
+                {% for category in categories %}
+                <li><a href="{% url 'categories:detail' category.id %}">{{ category.name }}</a></li>
+                {% endfor %}
+                <li><a href="#">Twitter</a></li>
+                <li><a href="#">Facebook</a></li>
+            </ol>
+        </div>
+    </div>
+</div><!--/row-->
+{% endblock %}

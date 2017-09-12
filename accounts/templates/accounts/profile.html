@@ -1,0 +1,263 @@
+{% extends 'accounts/base.html' %}
+{% load staticfiles %}
+{% block private-css-bottom %}
+<style>
+    .jumbotron {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+}
+a{
+cursor: pointer;
+}
+</style>
+{% endblock %}
+{% block private-js %}
+<script>
+
+        let seap = new URLSearchParams(window.location.search);
+        let link = seap.get('link');
+        let veap = new URLSearchParams(window.location.search);
+        let videoid = veap.get('videoid');
+        list = [link,'1'];
+        $(document).ready(function() {
+            $("#videoid").val(videoid);
+            $("#profile-link").removeAttr('href');
+            $("#video-posted-link").removeAttr('href');
+            $("#comment-posted-link").removeAttr('href');
+            $("#replies-posted-link").removeAttr('href');
+            $("#watched-link").removeAttr('href');
+            $("#sub-link").removeAttr('href');
+            is_link();
+        });
+
+        function is_link() {
+            console.log(list)
+            link = list[0]
+            if (link=='profile')    { $("#"+list[1]).hide(); $("#profile").show(); }
+            if (link=='video')      { $("#"+list[1]).hide(); $("#video").show(); }
+            if (link=='comment')    { $("#"+list[1]).hide(); $("#comment").show(); }
+            if (link=='reply')      { $("#"+list[1]).hide(); $("#reply").show();}
+            if (link=='watch')      { $("#"+list[1]).hide(); $("#watch").show();}
+            if (link=='sub')        { $("#"+list[1]).hide(); $("#sub").show(); }
+            if (link=='finish')        { $("#"+list[1]).hide(); $("#finish").show(); }
+            if (link=='subed')        { $("#"+list[1]).hide(); $("#subed").show(); }
+        }
+        function profile() {link_set('profile'); is_link(); }
+        function video() { link_set('video'); is_link();}
+        function comment() { link_set('comment');is_link(); }
+        function reply() { link_set('reply'); is_link(); }
+        function watch() { link_set('watch'); is_link(); }
+        function sub(){ link_set('sub'); is_link(); }
+        function finish(){ link_set('finish'); is_link(); }
+        function gotovideo(){ window.location.href='/videos/'+videoid ; }
+        function link_set(li){ list[1]=list[0]; list[0]=li; }
+</script>
+{% endblock %}
+
+{% block title %} profile {% endblock %}
+{% block body %}
+<div class="col-xs-12 col-sm-9">
+    <div id="profile" hidden>
+
+        <h1 class="page-header">Profile</h1>
+
+        <div class="row placeholders">
+            <div class="jumbotron">
+                <div class="row">
+                    <div class="col-md-4">
+                        <img src="{{'/media/avatar3.jpg' }}" width="150" height="150" class="img-responsive img-circle" alt="Generic placeholder thumbnail">
+                        <!--<h4>{{ user.username }} - {{ user.email }}</h4>-->
+                        <!--<span class="text-muted">{{ user.first_name }} {{ user.last_name }}</span>-->
+                    </div>
+                    <div class="col-md-8">
+                        <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+                        <h4><span class="glyphicon glyphicon-user"></span> Username : {{ user.username }}</h4>
+                        <h4><span class="glyphicon glyphicon-send"></span> Email : {{ user.email }}</h4>
+                        <h4><span class="glyphicon glyphicon-film"></span> left : {{ user.subscription.value }} videos</h4>
+                        {% if user == request.user%}
+                            <p class="pull-right"><a class="btn btn-lg btn-success" onclick="sub()" role="button"> Subscribe <span class="glyphicon glyphicon-ok" style="color:yellow"></span></a></p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <h3>Statistics</h3>
+        <div class="row placeholders">
+            <div class="col-xs-6 col-sm-3 placeholder">
+            <span style="background-color: #1e90d7; color:#fff" class="statistic-circle pull-center img-responsive img-circle">
+                {{ user.video_set.all.count }} videos
+            </span>
+                <h4 class="pull-center">Posted By {% if user == request.user%} You {% else %} {{ user.username }} {% endif %}</h4>
+            </div>
+            <div class="col-xs-6 col-sm-3 placeholder">
+            <span style="background-color: #43daad;" class="statistic-circle pull-center img-responsive img-circle">
+                {{ user.comment_set.all.count }} comments
+            </span>
+                <h4 class="pull-center">Made By {% if user == request.user%} You {% else %} {{ user.username }} {% endif %}</h4>
+            </div>
+            <div class="col-xs-6 col-sm-3 placeholder">
+            <span style="background-color: #1e90d7; color:#fff" class="statistic-circle pull-center img-responsive img-circle">
+                {{ user.reply_set.all.count }} replies
+            </span>
+                <h4 class="pull-center">Made By {% if user == request.user%} You {% else %} {{ user.username }} {% endif %}</h4>
+            </div>
+            <div class="col-xs-6 col-sm-3 placeholder">
+            <span style="background-color: #43daad;" class="statistic-circle pull-center img-responsive img-circle">
+                {{ user.watch_set.all.count }} movies
+            </span>
+                <h4 class="pull-center">Watched By {% if user == request.user%} You {% else %} {{ user.username }} {% endif %}</h4>
+            </div>
+        </div>
+    </div>
+    <div id="video" hidden class="table-responsive">
+        <h1 class="page-header">Videos posted.</h1>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Playlist</th>
+                <th>Category</th>
+                <th>Story</th>
+                <th>Format</th>
+                <th>Views</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for video in user.video_set.all %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ video.name }}</td>
+                <td>{{ video.playlist.name }}</td>
+                <td>{{ video.category.name }}</td>
+                <td>{{ video.details }}</td>
+                <td>{{ video.extension|default:'-' }}</td>
+                <td>{{ video.view_count }}</td>
+                <td><a style="color:#5cb85c" href="{% url 'videos:detail' pk=video.id %}"><h3 class="glyphicon glyphicon-th" ></h3></a></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div id="comment" hidden class="table-responsive">
+        <h1 class="page-header">Comments made </h1>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th></th>
+                <th>Video</th>
+                <th>Comment</th>
+                <th>Replies</th>
+                <th>Date</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for comment in user.comment_set.all %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ comment.video }}</td>
+                <td>{{ comment.text }}</td>
+                <td>{{ comment.reply_set.all.count }}</td>
+                <td>{{ comment.date_added }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div id="reply" hidden class="table-responsive">
+        <h1 class="page-header">Replies made</h1>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th></th>
+                <th>Comment</th>
+                <th>Comment by</th>
+                <th>Reply</th>
+                <th>Date</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for reply in user.reply_set.all %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ reply.comment.text }}</td>
+                <td>{{ reply.comment.added_by.username }}</td>
+                <td>{{ reply.text }}</td>
+                <td>{{ reply.date_added }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div id="watch" hidden class="table-responsive">
+        <h1 class="page-header">Watch history</h1>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th></th>
+                <th>Video</th>
+                <th>Date</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for watch in user.watch_set.all %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ watch.video.name }}</td>
+                <td>{{ watch.date_added }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div id="sub" hidden>
+        <h1 class="page-header">Subscribe</h1>
+        <div class="jumbotron row">
+            <form action="{% url 'subs:pay' %}" method="post" class="form-horizontal col-sm-5">
+                {% csrf_token %}
+                <div class="form-group">
+                    <p class="help-block">Pay plans</p>
+                    <select id="plan" name="value" class="form-control input-lg">
+                        {% for plan in plans %}
+                            <option value="{{plan.id}}">{{plan.name}} ₦{{plan.amount}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="text" hidden name="videoid" value="" id="videoid">
+                    <input type="text" name="account" class="form-control input-lg" id="exampleInputEmail1" placeholder="Account">
+                </div>
+                <div class="form-group">
+                    <div>
+                        <p class="help-block">Watch any 10 videos you like.</p>
+                        <button type="submit" class="col-sm-12 btn btn-lg btn-success"><span class="glyphicon glyphicon-ok" style="color:yellow"></span> Pay</button>
+                    </div>
+                </div>
+            </form>
+            <div class="col-md-offset-1 col-md-6">
+                <p class="help-block"></p>
+                <p class="help-block">Sub videos remaining: {{user.subscription.value}} videos</p>
+            </div>
+        </div>
+    </div>
+    <div id="finish" hidden>
+        <h1 class="page-header">Subscription Finished</h1>
+        <div class="jumbotron">
+        <h1>Sub ended <span style="color:#bf6767" class="glyphicon glyphicon-exclamation-sign"></span> </h1>
+        <p class="lead">Your sub has finished you need to make a new sub to continue watching videos.</p>
+        <p><a class="btn btn-lg btn-success" onclick="sub()" role="button">Make New Sub <span style="color:yellow" class="glyphicon glyphicon-circle-arrow-up"></span></a></p>
+      </div>
+    </div>
+    <div id="subed" hidden>
+        <h1 class="page-header">Congrats </h1>
+        <div class="jumbotron">
+        <h1>Sub Successfully  <span style="color:#5cb85c" class="glyphicon glyphicon-ok"></span> </h1>
+        <p class="lead">Congratulations you now have {{request.user.subscription.value}} subs.</p>
+        <p><a onclick="gotovideo()" class="btn btn-lg btn-success" role="button">Go back to the video<span style="color:yellow" class="glyphicon glyphicon-circle-arrow-up"></span></a></p>
+      </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  {% load staticfiles %}
+  {% block private-css-top %}
+  {% endblock %}
+  <link rel="stylesheet" href="{% static 'videos/bootstrap/css/blog.css' %}">
+  <link rel="stylesheet" href="{% static 'videos/bootstrap/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'videos/css/style.css' %}">
+    <style>
+        body{font-weight:700}
+    </style>
+  {% block private-css-bottom %}
+  {% endblock %}
+  <title>vidoo - {% block title %} {% endblock %}</title>
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="{% url 'index' %}">
+        <span style="color:#eee; font-size: 24px; margin-top: -8px;" class="glyphicon glyphicon-th"></span>
+          <span style="color:#5cb85c; font-size: 24px; margin-left:-11px; margin-top: -8px;" class="glyphicon glyphicon-play"></span>
+      </a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Category <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            {% for cat in categories %}
+              <li><a href="{% url 'categories:detail' cat.id %}">{{ cat.name }}</a></li>
+            {% endfor %}
+            <li role="separator" class="divider"></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Trending <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            {% for playlist in playlists %}
+              <li><a href="{% url 'videos:detail' playlist.id %}">{{ playlist.name }}</a></li>
+            {% endfor %}
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">2017 Latest <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            {% for latest in latests %}
+              <li><a href="{% url 'videos:detail' latest.id %}">{{ latest.name }}</a></li>
+            {% endfor %}
+          </ul>
+        </li>
+      </ul>
+      {% if user.is_authenticated %}
+      <form class="navbar-form navbar-left" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search">
+        </div>
+        <button type="submit" class="btn btn-success">Submit</button>
+      </form>
+      <ul class="nav navbar-nav navbar-right">
+        {% if request.user.is_superuser %}
+        <li><a style="margin-top: -4px;" href="{% url 'videos:create' %}" class="glyphicon glyphicon-cloud-upload"></a></li>
+        <li><a href="{% url 'accounts:profile' pk=request.user.id %}?link=sub"><span style="background-color:{% if request.user.subscription.value > 0 %} #3c763d {% else %} #7d3938 {% endif %}" class="badge">{{request.user.subscription.value}}</span></a></li>
+        {% endif %}
+        <li class="dropdown">
+          <a href="{% url 'accounts:profile' pk=request.user.id %}" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ request.user.username}}<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="{% url 'accounts:profile' pk=request.user.id %}?link=profile">Profile</a></li>
+            <li><a href="{% url 'logout' %}">Sign out</a></li>
+          </ul>
+        </li>
+      </ul>
+      {% else %}
+      <form action="{% url 'login' %}" method="post" class="navbar-form navbar-right">
+        {% csrf_token %}
+        <div class="form-group">
+          <input type="text" name="username" placeholder="Username" class="form-control">
+        </div>
+        <div class="form-group">
+          <input type="password" name="password" placeholder="Password" class="form-control">
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        </div>
+        <button type="submit" class="btn btn-success">Sign in</button>
+      </form>
+      {% endif %}
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+<div class="container">
+  {% block base%}
+  {% endblock%}
+  <hr>
+  <footer>
+    <p>© 2015
+      <span style="color:red">V</span>
+      <span style="color:green">I</span>
+      <span style="color:blue">D</span>
+      <span style="color:yellow">O</span>
+      <span style="color:yellow">O</span>
+      , Inc.</p>
+  </footer>
+</div>
+
+<script src="{% static 'videos/js/jquery-2.1.4.min.js' %}"></script>
+<script src="{% static 'videos/bootstrap/js/bootstrap.min.js' %}"></script>
+{% block private-js %}
+{% endblock %}
+
+</body>
+</html>

@@ -1,0 +1,40 @@
+{% extends 'videos/frame.html' %}
+{% block base%}
+
+
+    <div class="row">
+        <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar">
+        <div class="list-group">
+            <h1 class="page-header">Menu</h1>
+            {% if user == request.user%}
+                <a id="profile-link" href="{% url 'accounts:profile' pk=user.pk %}" onclick="profile()" class="list-group-item"><span class="badge"></span>Profile</a>
+            {% endif %}
+            <a id="video-posted-link" href="{% url 'accounts:profile' pk=user.pk %}" onclick="video()" class="list-group-item"><span class="badge">{{ user.video_set.all.count }}</span>Videos posted</a>
+            <a id="comment-posted-link" href="{% url 'accounts:profile' pk=user.pk %}" onclick="comment()" class="list-group-item"><span class="badge">{{ user.comment_set.all.count }}</span>Comment made</a>
+            <a id="replies-posted-link" href="{% url 'accounts:profile' pk=user.pk %}" onclick="reply()" class="list-group-item"><span class="badge">{{ user.reply_set.all.count }}</span>Comment replies</a>
+            <a id="watched-link" href="{% url 'accounts:profile' pk=user.pk %}"  onclick="watch()" class="list-group-item"><span class="badge">{{ user.watch_set.all.count }}</span>Watch history</a>
+            <a id="sub-link" href="{% url 'accounts:profile' pk=user.pk %}"  onclick="sub()" class="list-group-item"><span class="badge"></span>Subscribe</a>
+        </div>
+        {% if user == request.user%}
+            <div class="list-group">
+                <h1 class="page-header">Admin</h1>
+                {% if perms.video %}
+                    {% if perms.video.can_add %}
+                        <a href="{% url 'videos:create' %}" class="list-group-item"><span class="glyphicon glyphicon-plus"> Videos</span></a>
+                    {% endif %}
+                    {% if perms.playlist.can_add %}
+                        <a href="" class="list-group-item"><span class="glyphicon glyphicon-plus"> Playlist</span></a>
+                    {% endif %}
+                    {% if perms.category.can_add %}
+                        <a href="" class="list-group-item"><span class="glyphicon glyphicon-plus"> Category</span></a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        {% endif %}
+    </div><!--/.sidebar-offcanvas-->
+        {% block body%}
+        {% endblock%}
+    </div>
+
+
+{% endblock%}
